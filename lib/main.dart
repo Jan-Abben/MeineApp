@@ -67,34 +67,61 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Center(child: Text(widget.title)),
       ),
-      body: Center(
+      body: Row(
+        spacing: 0,
+        children: [
+          SafeArea(
+            child: NavigationRail(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              extended: false,
+              destinations: [
+                NavigationRailDestination(
+                  icon: Icon(Icons.home), 
+                  label: Text('Startseite')
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.local_dining), 
+                  label: Text('Ernährung')
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.local_grocery_store,), 
+                  label: Text('Einkaufen')
+                )
+              ], 
+              selectedIndex: 0)
+            ),
         
-        child: Column(
-          
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: 50,
-          children: <Widget>[
-            SizedBox(
-              width: 200,
-              height: 200,
-              child: FloatingActionButton(
-              onPressed: (){},
-              tooltip: 'Ernährung',
-              child: const Icon(Icons.local_dining,size: 100,),
+          Expanded(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 50,
+                children: <Widget>[
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: FloatingActionButton(
+                    onPressed: (){},
+                    tooltip: 'Ernährung',
+                    child: const Icon(Icons.local_dining,size: 100,),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: FloatingActionButton(
+                    onPressed: (){},
+                    tooltip: 'Einkaufen',
+                    child: const Icon(Icons.local_grocery_store,size: 100,),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(
-              width: 200,
-              height: 200,
-              child: FloatingActionButton(
-              onPressed: (){},
-              tooltip: 'Einkaufen',
-              child: const Icon(Icons.local_grocery_store,size: 100,),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
+
+
