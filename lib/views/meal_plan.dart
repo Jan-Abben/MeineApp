@@ -10,6 +10,6 @@ class MealPlan extends StatefulWidget {
 class _MealPlanState extends State<MealPlan> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Text("Essensplan");
   }
 }

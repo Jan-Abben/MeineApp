@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:meine_app/views/homepage.dart';
+import 'package:meine_app/views/meal_plan.dart';
+import 'package:meine_app/views/shopping.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,13 +19,13 @@ class MyApp extends StatelessWidget {
         
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const MyHomePage(title: 'Startseite'),
+      home: const CurrentPage(title: 'Startseite'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class CurrentPage extends StatefulWidget {
+  const CurrentPage({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -36,22 +39,13 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<CurrentPage> createState() => _CurrentPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _CurrentPageState extends State<CurrentPage> {
+  
+  var selectedIndex = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +55,24 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = HomePage();
+        break;
+      case 1:
+        page = MealPlan();
+        break;
+      case 2:
+        page = Shopping();
+        break;
+      default:
+        page = Text("Seite nicht gefunden");
+        print("Error: no page found");
+    }
+
+
     return Scaffold(
       appBar: AppBar(
 
@@ -88,35 +100,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   label: Text('Einkaufen')
                 )
               ], 
-              selectedIndex: 0)
+              selectedIndex: selectedIndex,
+              onDestinationSelected: (index) {
+                setState(() {
+                  selectedIndex = index;
+                });
+              },
+              )
             ),
         
+          //Page switches to the selected page in the Destination Rail
           Expanded(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: 50,
-                children: <Widget>[
-                  SizedBox(
-                    width: 200,
-                    height: 200,
-                    child: FloatingActionButton(
-                    onPressed: (){},
-                    tooltip: 'Ernährung',
-                    child: const Icon(Icons.local_dining,size: 100,),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 200,
-                    height: 200,
-                    child: FloatingActionButton(
-                    onPressed: (){},
-                    tooltip: 'Einkaufen',
-                    child: const Icon(Icons.local_grocery_store,size: 100,),
-                    ),
-                  ),
-                ],
-              ),
+            child: page
           ),
         ],
       ),
