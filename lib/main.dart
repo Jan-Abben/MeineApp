@@ -3,8 +3,18 @@ import 'package:meine_app/views/homepage.dart';
 import 'package:meine_app/views/meal_plan.dart';
 import 'package:meine_app/views/shopping.dart';
 
+
+import 'dart:convert';
+import 'package:csv/csv.dart';
+import 'package:path_provider/path_provider.dart';
+
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:meine_app/csv_handling.dart' as csv_handling;
+
 void main() {
   runApp(const MyApp());
+  csv_handling.main();
 }
 
 class MyApp extends StatelessWidget {
@@ -22,6 +32,8 @@ class MyApp extends StatelessWidget {
       home: const CurrentPage(title: 'Startseite'),
     );
   }
+  
+
 }
 
 class CurrentPage extends StatefulWidget {
@@ -44,7 +56,22 @@ class CurrentPage extends StatefulWidget {
 
 class _CurrentPageState extends State<CurrentPage> {
   
+  Future<void> load_assets() async {
+    final rawData = await rootBundle.loadString('assets/data/sample.csv');
+    List<List<dynamic>> csvTable = const CsvToListConverter().convert(rawData);
+    
+
+    csv_handling.writeCsvFile('Example.csv', csvTable);
+  }
+
   var selectedIndex = 0;
+
+   @override
+  void initState() {
+    super.initState();
+
+    load_assets();
+  }
 
 
   @override
