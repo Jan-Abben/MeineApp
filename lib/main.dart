@@ -56,23 +56,9 @@ class CurrentPage extends StatefulWidget {
 
 class _CurrentPageState extends State<CurrentPage> {
   
-  Future<void> load_assets() async {
-    final rawData = await rootBundle.loadString('assets/data/sample.csv');
-    List<List<dynamic>> csvTable = const CsvToListConverter().convert(rawData);
-    
-
-    csv_handling.writeCsvFile('Example.csv', csvTable);
-  }
+  
 
   var selectedIndex = 0;
-
-   @override
-  void initState() {
-    super.initState();
-
-    load_assets();
-  }
-
 
   @override
   Widget build(BuildContext context) {

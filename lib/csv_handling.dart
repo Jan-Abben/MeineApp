@@ -76,7 +76,7 @@ Future<List<Map<String, dynamic>>> readCsvAsObjects(String filename) async {
     ];
 
     await writeCsvFile("test.csv", rows);
-    print(await readCsvFile("test.csv"));
+    //print(await readCsvFile("test.csv"));
 
     List<Map<String, dynamic>> objects = [
       {'Name': 'Alice', 'Age': 30, 'City': 'New York'},
@@ -84,10 +84,11 @@ Future<List<Map<String, dynamic>>> readCsvAsObjects(String filename) async {
     ];
 
     await writeObjectsAsCsv("test2.csv", objects);
-    print(await readCsvAsObjects("test2.csv"));
-    print('---');
-    print('#');
-    print(await readCsvAsObjects("Example.csv"));
-    print('#');
-
+    //print(await readCsvAsObjects("test2.csv"));
+    //print('---');
+    
+    final rawData = await rootBundle.loadString('assets/data/sample.csv');
+    List<List<dynamic>> csvTable = const CsvToListConverter().convert(rawData);
+    print(csvTable);
+    //habe System für Entwickler auf dem PC wieder deaktiviert
   }
