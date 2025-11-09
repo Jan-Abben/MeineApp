@@ -1,0 +1,44 @@
+[
+    {
+        "name": "Chilli Con Carne",
+        "calories": 1490,
+        "protein": 115,
+        "ingredients":[
+            {
+                "name": "Hackfleisch",
+                "amount": "500g"
+            },
+            {
+                "name": "Tomaten gehackt",
+                "amount": "1 Dose"
+            },
+            {
+                "name": "Kidneybohnen",
+                "amount": "1 Dose"
+            }
+        ]
+    },
+    {
+        "name": "Nudelauflauf",
+        "calories": 3200,
+        "protein": 115,
+        "ingredients":[
+            {
+                "name": "Nudeln",
+                "amount": "500g"
+            },
+            {
+                "name": "Streukäse",
+                "amount": "200g"
+            },
+            {
+                "name": "Sahne",
+                "amount": "200g"
+            },
+            {
+                "name": "Gewürz",
+                "amount": "2 Tüten"
+            }
+        ]
+    }
+]
