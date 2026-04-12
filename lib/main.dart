@@ -3,6 +3,10 @@ import 'package:meine_app/views/homepage.dart';
 import 'package:meine_app/views/meal_plan.dart';
 import 'package:meine_app/views/shopping.dart';
 
+//Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_options.dart';
 
 import 'dart:convert';
 import 'package:csv/csv.dart';
@@ -12,9 +16,33 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:meine_app/csv_handling.dart' as csv_handling;
 
-void main() {
+Future<void> main() async {
+  
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  print("Firebase initialized!!!");
+
+  await FirebaseFirestore.instance
+    .collection("test")
+    .add({"ok": true});
+
+  print("Write success!!!");
+
+  final db = FirebaseFirestore.instance;
+
+  await db.collection("Rezepte").get().then((event) {
+  for (var doc in event.docs) {
+    print("${doc.id} => ${doc.data()}");
+  }
+  });
+  
+  print("Read success!!!");
+
   runApp(const MyApp());
-  csv_handling.main();
+  //csv_handling.main();
 }
 
 class MyApp extends StatelessWidget {
