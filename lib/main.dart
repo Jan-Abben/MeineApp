@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meine_app/views/homepage.dart';
-import 'package:meine_app/views/meal_plan.dart';
+import 'package:meine_app/views/food_tracking.dart';
 import 'package:meine_app/views/shopping.dart';
 
 //Firebase
@@ -8,28 +8,26 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 
-import 'dart:convert';
-import 'package:csv/csv.dart';
-import 'package:path_provider/path_provider.dart';
-
-
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:meine_app/csv_handling.dart' as csv_handling;
 
 Future<void> main() async {
+
   
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+/*
   print("Firebase initialized!!!");
 
+ 
   await FirebaseFirestore.instance
     .collection("test")
     .add({"ok": true});
 
   print("Write success!!!");
+
+ 
 
   final db = FirebaseFirestore.instance;
 
@@ -40,9 +38,9 @@ Future<void> main() async {
   });
   
   print("Read success!!!");
+*/
 
   runApp(const MyApp());
-  //csv_handling.main();
 }
 
 class MyApp extends StatelessWidget {
@@ -103,7 +101,7 @@ class _CurrentPageState extends State<CurrentPage> {
         page = HomePage();
         break;
       case 1:
-        page = MealPlan();
+        page = FoodTracking();
         break;
       case 2:
         page = Shopping();
