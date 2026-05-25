@@ -17,28 +17,41 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-/*
+
   print("Firebase initialized!!!");
 
- 
-  await FirebaseFirestore.instance
-    .collection("test")
-    .add({"ok": true});
+ final db = FirebaseFirestore.instance;
+
+  await db
+    .collection("Lebensmittelverfolgung")
+    .doc("test")
+    .set({"ok": false});
 
   print("Write success!!!");
 
  
 
-  final db = FirebaseFirestore.instance;
+ 
 
-  await db.collection("Rezepte").get().then((event) {
+  await db.collection("Lebensmittelverfolgung").get().then((event) {
   for (var doc in event.docs) {
     print("${doc.id} => ${doc.data()}");
   }
   });
   
+  await db.collection("Lebensmittelverfolgung").doc("test").get().then((doc) {
+    if (doc.exists) {
+      print("Document data: ${doc.data()}");
+    } else {
+      print("No such document!");
+    }
+    }); 
+
   print("Read success!!!");
-*/
+
+
+
+
 
   runApp(const MyApp());
 }
