@@ -88,4 +88,18 @@ class DatabaseService {
       throw Exception('Recipe item not found');
     }
   }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getAllRecipeItems() {
+    return FirebaseFirestore.instance
+      .collection('Rezepte')
+      .snapshots();
+    }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getAllTrackingItems() {
+    return FirebaseFirestore.instance
+      .collection('Lebensmittelverfolgung')
+      .orderBy(FieldPath.documentId, descending: true)
+      .snapshots();
+    }
+
 }

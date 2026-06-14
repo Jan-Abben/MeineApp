@@ -53,16 +53,6 @@ Future<void> main() async {
 
   final db = FirebaseFirestore.instance;
 
-  /*
-  await db
-    .collection("Lebensmittelverfolgung")
-    .doc("test")
-    .set({"ok": false});
-
-  print("Write success!!!");
-
- */
-
   await db.collection("Lebensmittelverfolgung").get().then((event) {
     for (var doc in event.docs) {
       print("${doc.id} => ${doc.data()}");
@@ -135,7 +125,7 @@ class _CurrentPageState extends State<CurrentPage> {
       page: const Shopping(),
     ),
     PageItem(
-      title: 'Lebensmittel-Datenbank',
+      title: 'Datenbanken',
       icon: Icons.storage,
       page: const FoodDatabase(),
     ),
