@@ -31,6 +31,15 @@ class RecipeItem {
   RecipeItem({required this.name, required this.ingredients, required this.calories, required this.protein});
 }
 
+class IngredientInput {
+  String name = "";
+  String amount = "";
+  //String unit = "";
+}
+
+
+
+
 
 
 class DatabaseService {
