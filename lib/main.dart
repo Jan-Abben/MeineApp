@@ -18,10 +18,11 @@ class PageItem {
   const PageItem({required this.title, required this.page, required this.icon});
 }
 
+//Ich verwende als Gmail-Konto jan.abbenhaus@gmail.com
 /* Roadmap:
 
 Lebensmitteldatenbank aufbauen:
-- Lebensmittel/Gericht hinzufügen
+- Kalorien und Proteine für Gericht berechnen und dann Gericht speichern
 
 Einkaufen:
 - Einkaufslisten erstellen
