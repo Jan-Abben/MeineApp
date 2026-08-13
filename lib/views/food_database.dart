@@ -11,8 +11,6 @@ class FoodDatabase extends StatefulWidget {
 
 class _FoodDatabaseState extends State<FoodDatabase>
     with SingleTickerProviderStateMixin {
-class _FoodDatabaseState extends State<FoodDatabase>
-    with SingleTickerProviderStateMixin {
   void _showAddFoodDialog() {
     String name = '';
     String calories = '';
@@ -167,22 +165,25 @@ class _FoodDatabaseState extends State<FoodDatabase>
                         ))) {
                       print(ingredients);
 
-
-                      
                       int caloriesSum = 0;
                       int proteinSum = 0;
 
-                      for (var obj in ingredients){
-                        final foodItem = await DatabaseService().getFoodItem(obj.name);
+                      for (var obj in ingredients) {
+                        final foodItem = await DatabaseService().getFoodItem(
+                          obj.name,
+                        );
 
-                        caloriesSum += foodItem.calories * int.parse(obj.amount);
+                        caloriesSum +=
+                            foodItem.calories * int.parse(obj.amount);
                         proteinSum += foodItem.protein * int.parse(obj.amount);
-                       }
-
+                      }
 
                       final recipeItem = RecipeItem(
                         name: name,
-                        ingredients: {for (var obj in ingredients) obj.name: int.parse(obj.amount)},
+                        ingredients: {
+                          for (var obj in ingredients)
+                            obj.name: int.parse(obj.amount),
+                        },
                         calories: caloriesSum,
                         protein: proteinSum,
                       );
@@ -346,128 +347,6 @@ class _FoodDatabaseState extends State<FoodDatabase>
                 ),
               ],
             ),
-    return Column(
-      children: [
-        Expanded(
-          child: Scaffold(
-            appBar: AppBar(
-              toolbarHeight: 0,
-              //title: const Text("TabBar Beispiel"),
-              bottom: TabBar(
-                controller: _tabController,
-                labelPadding: EdgeInsets.symmetric(horizontal: 12.0),
-                tabs: [
-                  Tab(text: "Lebensmittel"),
-                  Tab(text: "Rezepte"),
-                  Tab(text: "Tracking"),
-                ],
-              ),
-            ),
-            body: TabBarView(
-              controller: _tabController,
-              children: [
-                StreamBuilder(
-                  stream: DatabaseService().getAllFoodItems(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Fehler');
-                    }
-
-                    if (!snapshot.hasData) {
-                      return CircularProgressIndicator();
-                    }
-
-                    final docs = snapshot.data!.docs;
-
-                    return ListView.builder(
-                      itemCount: docs.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(docs[index].id),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Kalorien: ${docs[index].data()['calories']}',
-                              ),
-                              Text('Protein: ${docs[index].data()['protein']}'),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-
-                StreamBuilder(
-                  stream: DatabaseService().getAllRecipeItems(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Fehler');
-                    }
-
-                    if (!snapshot.hasData) {
-                      return CircularProgressIndicator();
-                    }
-
-                    final docs = snapshot.data!.docs;
-
-                    return ListView.builder(
-                      itemCount: docs.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(docs[index].id),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Kalorien: ${docs[index].data()['calories']}',
-                              ),
-                              Text('Protein: ${docs[index].data()['protein']}'),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-                StreamBuilder(
-                  stream: DatabaseService().getAllTrackingItems(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Text('Fehler');
-                    }
-
-                    if (!snapshot.hasData) {
-                      return CircularProgressIndicator();
-                    }
-
-                    final docs = snapshot.data!.docs;
-
-                    return ListView.builder(
-                      itemCount: docs.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(docs[index].id),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Kalorien: ${docs[index].data()['calories']}',
-                              ),
-                              Text('Protein: ${docs[index].data()['protein']}'),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
           ),
         ),
         Align(
@@ -494,24 +373,6 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     break;
                 }
               },
-              onPressed: () {
-                final index = _tabController.index;
-
-                switch (index) {
-                  case 0:
-                    _showAddFoodDialog();
-                    // Aktion für Tab 1
-                    break;
-                  case 1:
-                    _showAddRecipeDialog();
-                    // Aktion für Tab 2
-                    break;
-                  case 2:
-                    print("Add Tracking");
-                    // Aktion für Tab 3
-                    break;
-                }
-              },
               tooltip: 'Neu hinzufügen',
               child: const Icon(Icons.add, size: 40),
             ),
@@ -520,10 +381,4 @@ class _FoodDatabaseState extends State<FoodDatabase>
       ],
     );
   }
-
-  //
-    );
-  }
-
-  //
 }
