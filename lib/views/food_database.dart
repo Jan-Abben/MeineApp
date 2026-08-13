@@ -47,13 +47,24 @@ class _FoodDatabaseState extends State<FoodDatabase>
             ),
             ElevatedButton(
               onPressed: () {
-                final foodItem = FoodItem(
-                  name: name,
-                  calories: int.parse(calories),
-                  protein: int.parse(protein),
-                );
-                DatabaseService().addFoodItem(foodItem);
-                Navigator.pop(context);
+                if (name.isNotEmpty &&
+                    calories.isNotEmpty &&
+                    protein.isNotEmpty) {
+                  final foodItem = FoodItem(
+                    name: name,
+                    calories: int.parse(calories),
+                    protein: int.parse(protein),
+                  );
+                  DatabaseService().addFoodItem(foodItem);
+                  Navigator.pop(context);
+                } else {
+                  // Show an error message or handle the case where the name or ingredients are empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Bitte füllen Sie alle Felder aus.'),
+                    ),
+                  );
+                }
               },
               child: Text('Hinzufügen'),
             ),
@@ -147,16 +158,42 @@ class _FoodDatabaseState extends State<FoodDatabase>
                   child: Text('Abbrechen'),
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    print(ingredients);
-                    final recipeItem = RecipeItem(
-                      name: name,
-                      ingredients: {},
-                      calories: int.parse(calories),
-                      protein: int.parse(protein),
-                    );
-                    DatabaseService().addRecipeItem(recipeItem);
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    if (name.isNotEmpty &&
+                        (ingredients.every(
+                          (obj) => obj.name.isNotEmpty && obj.amount.isNotEmpty,
+                        ))) {
+                      print(ingredients);
+
+
+                      
+                      int caloriesSum = 0;
+                      int proteinSum = 0;
+
+                      for (var obj in ingredients){
+                        final foodItem = await DatabaseService().getFoodItem(obj.name);
+
+                        caloriesSum += foodItem.calories * int.parse(obj.amount);
+                        proteinSum += foodItem.protein * int.parse(obj.amount);
+                       }
+
+
+                      final recipeItem = RecipeItem(
+                        name: name,
+                        ingredients: {for (var obj in ingredients) obj.name: int.parse(obj.amount)},
+                        calories: caloriesSum,
+                        protein: proteinSum,
+                      );
+                      DatabaseService().addRecipeItem(recipeItem);
+                      Navigator.pop(context);
+                    } else {
+                      // Show an error message or handle the case where the name or ingredients are empty
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Bitte füllen Sie alle Felder aus.'),
+                        ),
+                      );
+                    }
                   },
                   child: Text('Hinzufügen'),
                 ),

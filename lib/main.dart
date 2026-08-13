@@ -22,7 +22,8 @@ class PageItem {
 /* Roadmap:
 
 Lebensmitteldatenbank aufbauen:
-- Kalorien und Proteine für Gericht berechnen und dann Gericht speichern
+- Überlegen wie ich mit Einheiten umgehen will (g, ml, Stück, ...)
+- Umgang mit ö,ä,ü
 
 Einkaufen:
 - Einkaufslisten erstellen
