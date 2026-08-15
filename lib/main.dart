@@ -21,9 +21,12 @@ class PageItem {
 //Ich verwende als Gmail-Konto jan.abbenhaus@gmail.com
 /* Roadmap:
 
-Lebensmitteldatenbank aufbauen:
-- Überlegen wie ich mit Einheiten umgehen will (g, ml, Stück, ...)
-- Umgang mit ö,ä,ü
+Food Tracking:
+-etwas funktioniert noch nicht richtig bei der Anzeige des currentTrack!!!
+- Lebensmittel/Gericht bei einem Tag hinzufügen
+- Nährwerte berechnen lassen
+- vergleich mit Zielvorgaben
+- Alles langfristig speichern (Verlauf anzeigen)
 
 Einkaufen:
 - Einkaufslisten erstellen
@@ -35,11 +38,7 @@ Einkaufen:
   -Einkaufliste löschen (eventuell langfristig speichern?)
 
 
-Food Tracking:
-- Lebensmittel/Gericht bei einem Tag hinzufügen
-- Nährwerte berechnen lassen
-- vergleich mit Zielvorgaben
-- Alles langfristig speichern (Verlauf anzeigen)
+
 
 
 
@@ -117,7 +116,7 @@ class _CurrentPageState extends State<CurrentPage> {
       page: const HomePage()
       ),
     PageItem(
-      title: 'Lebensmittelverfolgung',
+      title: 'Lebensmittelverfolgung ${DateTime.now().day.toString()}.${DateTime.now().month.toString()}.${DateTime.now().year.toString()}',
       icon: Icons.local_dining,
       page: const FoodTracking(),
     ),

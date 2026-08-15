@@ -110,7 +110,7 @@ class _FoodDatabaseState extends State<FoodDatabase>
                           ),
                         ),
 
-                        Expanded(
+                        Expanded(//ü
                           child: TextField(
                             decoration: const InputDecoration(
                               labelText: "Menge",
@@ -165,27 +165,39 @@ class _FoodDatabaseState extends State<FoodDatabase>
                         ))) {
                       print(ingredients);
 
-                      int caloriesSum = 0;
-                      int proteinSum = 0;
+                      double caloriesSum = 0;
+                      double proteinSum = 0;
 
                       for (var obj in ingredients) {
-                        final foodItem = await DatabaseService().getFoodItem(
-                          obj.name,
-                        );
+                        try {
+                          final foodItem = await DatabaseService().getFoodItem(
+                            obj.name,
+                          );
 
-                        caloriesSum +=
-                            foodItem.calories * int.parse(obj.amount);
-                        proteinSum += foodItem.protein * int.parse(obj.amount);
+                          caloriesSum += foodItem.calories *
+                              double.parse(obj.amount.replaceAll(',', '.'));
+                          proteinSum += foodItem.protein *
+                              double.parse(obj.amount.replaceAll(',', '.'));
+                        } catch (e) {
+                          // Handle the case where the food item is not found
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Lebensmittel "${obj.name}" nicht gefunden.'),
+                            ),
+                          );
+                          return; // Exit the function if a food item is not found
+                        }
                       }
 
                       final recipeItem = RecipeItem(
                         name: name,
                         ingredients: {
                           for (var obj in ingredients)
-                            obj.name: int.parse(obj.amount),
+                            obj.name: double.parse(obj.amount.replaceAll(',', '.')),
                         },
-                        calories: caloriesSum,
-                        protein: proteinSum,
+                        calories: (caloriesSum/10).round()*10,
+                        protein: (proteinSum).round(),
                       );
                       DatabaseService().addRecipeItem(recipeItem);
                       Navigator.pop(context);
