@@ -37,6 +37,8 @@ Einkaufen:
   -Dinge von der Liste abhaken
   -Einkaufliste löschen (eventuell langfristig speichern?)
 
+-Zusätzliche Features:
+- Barcode Scanner mit Verbindung zu einer Lebensmittel-Datenbank (z.B. OpenFoodFacts)
 
 
 

@@ -24,7 +24,7 @@ class FoodItem {
 
 class RecipeItem {
   final String name;
-  final Map<String, double> ingredients; // Map von Lebensmittelname zu Menge
+  final Map<String, dynamic> ingredients; // Map von Lebensmittelname zu Menge
   final int calories;
   final int protein;
 
@@ -38,7 +38,7 @@ class RecipeItem {
 
 class TrackingItem {
   final String name;
-  final Map<String, double> food; // Map von Lebensmittelname zu Menge
+  final Map<String, dynamic> food; // Map von Lebensmittelname zu Menge
   final int calories;
   final int protein;
 
@@ -154,10 +154,15 @@ class DatabaseService {
         .collection('Lebensmittelverfolgung')
         .doc(name)
         .get();
-    if (documentSnapshot.exists) {
-      final food = documentSnapshot.data()!['food'] as Map<String, double>;
 
-      food.forEach((name, amount) async {
+    //print("documentSnapshot.exists: ${documentSnapshot.exists}");
+    //print("documentSnapshot.data(): ${documentSnapshot.data()!['food']}");
+    if (documentSnapshot.exists) {
+      final food = documentSnapshot.data()!['food']; //Map<String, double>
+      
+      for (final entry in food.entries) {
+        final name = entry.key;
+        final amount = entry.value;
         try {
           FoodItem item = await getFoodItem(name);
           result.add({
@@ -166,9 +171,7 @@ class DatabaseService {
             'name': name,
             'amount': amount,
           });
-
         } catch (e) {
-          print("Food item not found");
           try {
             RecipeItem item = await getRecipeItem(name);
             result.add({
@@ -177,16 +180,18 @@ class DatabaseService {
               'name': name,
               'amount': amount,
             });
-
           } catch (e) {
             print("Recipe item not found");
           }
         }
-      });
+      }
     } else {
-      throw Exception('Tracking data not found');
+      await _db.collection('Lebensmittelverfolgung').doc(name).set({
+        'calories': 0,
+        'protein': 0,
+        'food': {},
+      });
     }
-
     return result;
   }
 }
