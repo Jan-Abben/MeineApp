@@ -140,6 +140,71 @@ class DatabaseService {
     });
   }
 
+  Future<void> createTrackingToday(String name) async {
+    final documentSnapshot = await _db
+        .collection('Lebensmittelverfolgung')
+        .doc(name)
+        .get();
+    if (!documentSnapshot.exists) {
+      await _db.collection('Lebensmittelverfolgung').doc(name).set({
+        'calories': 0,
+        'protein': 0,
+        'food': {},
+      });
+    }
+  }
+
+  Stream<TrackingItem> getTrackingItemStream(String name) {
+    return FirebaseFirestore.instance
+        .collection('Lebensmittelverfolgung')
+        .doc(name)
+        .snapshots()
+        .map((snapshot) {
+          final data = snapshot.data()!;
+
+          return TrackingItem(
+            name: data['name'],
+            food: (data['food'] as Map<String, dynamic>),
+            calories: data['calories'],
+            protein: data['protein'],
+          );
+        });
+  }
+
+  Future<TrackingItem> addEntryToTrackingItem(
+    TrackingItem trackingItem,
+    String name,
+    double amount,
+  ) async {
+    // Update the food map
+    Map<String, dynamic> food = {...trackingItem.food, name: amount};
+    int calories = trackingItem.calories;
+    int protein = trackingItem.protein;
+
+    // Get the food item to calculate calories and protein
+    try {
+      FoodItem foodItem = await getFoodItem(name);
+      calories += (foodItem.calories * amount / 10).round() * 10;
+      protein += (foodItem.protein * amount).round();
+    } catch (e) {
+      try {
+        RecipeItem recipeItem = await getRecipeItem(name);
+        calories += (recipeItem.calories * amount / 10).round() * 10;
+        protein += (recipeItem.protein * amount).round();
+      } catch (e) {
+        print("Food or Recipe item not found");
+      }
+    }
+    TrackingItem updatedTrackingItem = TrackingItem(
+      name: trackingItem.name,
+      food: food,
+      calories: calories,
+      protein: protein,
+    );
+
+    return updatedTrackingItem;
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllTrackingItems() {
     return FirebaseFirestore.instance
         .collection('Lebensmittelverfolgung')
@@ -147,24 +212,28 @@ class DatabaseService {
         .snapshots();
   }
 
-  Future<List<Map<String, dynamic>>> getTrackedValues(String name) async {
+  Future<List<Map<String, dynamic>>> getTrackedValues(
+    TrackingItem trackingItem,
+  ) async {
     List<Map<String, dynamic>> result = [];
 
-    final documentSnapshot = await _db
-        .collection('Lebensmittelverfolgung')
-        .doc(name)
-        .get();
-
     //print("documentSnapshot.exists: ${documentSnapshot.exists}");
-    //print("documentSnapshot.data(): ${documentSnapshot.data()!['food']}");
-    if (documentSnapshot.exists) {
-      final food = documentSnapshot.data()!['food']; //Map<String, double>
-      
-      for (final entry in food.entries) {
-        final name = entry.key;
-        final amount = entry.value;
+    //print("documentSnapshot.data(): ${documentSnapshot.data()!['food']}")
+
+    for (final entry in trackingItem.food.entries) {
+      final name = entry.key;
+      final amount = entry.value;
+      try {
+        FoodItem item = await getFoodItem(name);
+        result.add({
+          'protein': (item.protein * amount).round(),
+          'calories': (item.calories * amount / 10).round() * 10,
+          'name': name,
+          'amount': amount,
+        });
+      } catch (e) {
         try {
-          FoodItem item = await getFoodItem(name);
+          RecipeItem item = await getRecipeItem(name);
           result.add({
             'protein': (item.protein * amount).round(),
             'calories': (item.calories * amount / 10).round() * 10,
@@ -172,26 +241,16 @@ class DatabaseService {
             'amount': amount,
           });
         } catch (e) {
-          try {
-            RecipeItem item = await getRecipeItem(name);
-            result.add({
-              'protein': (item.protein * amount).round(),
-              'calories': (item.calories * amount / 10).round() * 10,
-              'name': name,
-              'amount': amount,
-            });
-          } catch (e) {
-            print("Recipe item not found");
-          }
+          print("Recipe item not found");
         }
       }
-    } else {
-      await _db.collection('Lebensmittelverfolgung').doc(name).set({
-        'calories': 0,
-        'protein': 0,
-        'food': {},
-      });
     }
     return result;
+  }
+
+  Stream<List<Map<String, dynamic>>> getTrackedValuesStream(String name) {
+    return getTrackingItemStream(name).asyncMap((item) async {
+      return await getTrackedValues(item);
+    });
   }
 }

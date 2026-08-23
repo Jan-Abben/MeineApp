@@ -22,9 +22,8 @@ class PageItem {
 /* Roadmap:
 
 Food Tracking:
--etwas funktioniert noch nicht richtig bei der Anzeige des currentTrack!!!
+-Bug fixen damit die Sachen richtige angezeigt werden
 - Lebensmittel/Gericht bei einem Tag hinzufügen
-- Nährwerte berechnen lassen
 - vergleich mit Zielvorgaben
 - Alles langfristig speichern (Verlauf anzeigen)
 
