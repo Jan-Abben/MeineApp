@@ -126,36 +126,40 @@ class _CurrentPageState extends State<CurrentPage> {
 
     Widget page = pages[selectedIndex].page;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Center(child: Text(pages[selectedIndex].title)),
-      ),
-      body: Row(
-        spacing: 0,
-        children: [
-          SafeArea(
-            child: NavigationRail(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              extended: false,
-              destinations: pages.map((item) {
-                return NavigationRailDestination(
-                  icon: Icon(item.icon),
-                  label: Text(item.title),
-                );
-              }).toList(),
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) {
-                setState(() {
-                  selectedIndex = index;
-                });
-              },
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          title: Center(child: Text(pages[selectedIndex].title)),
+        ),
+        body: Row(
+          spacing: 0,
+          children: [
+            SafeArea(
+              child: NavigationRail(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                extended: false,
+                destinations: pages.map((item) {
+                  return NavigationRailDestination(
+                    icon: Icon(item.icon),
+                    label: Text(item.title),
+                  );
+                }).toList(),
+                selectedIndex: selectedIndex,
+                onDestinationSelected: (index) {
+                  setState(() {
+                    selectedIndex = index;
+                  });
+                },
+              ),
             ),
-          ),
-
-          //Page switches to the selected page in the Destination Rail
-          Expanded(child: page),
-        ],
+      
+            //Page switches to the selected page in the Destination Rail
+            Expanded(child: page),
+          ],
+        ),
       ),
     );
   }

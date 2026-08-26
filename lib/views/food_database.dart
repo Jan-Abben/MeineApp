@@ -20,7 +20,7 @@ class _FoodDatabaseState extends State<FoodDatabase>
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Neues Lebensmittel hinzufügen'),
+          title: Text('Lebensmittel hinzufügen'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -79,75 +79,82 @@ class _FoodDatabaseState extends State<FoodDatabase>
     List<IngredientInput> ingredients = [IngredientInput(), IngredientInput()];
 
     showDialog(
+      useSafeArea: false,
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, updateDialogState) {
             return AlertDialog(
-              title: Text('Neues Rezept hinzufügen'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    onChanged: (value) => name = value,
-                    decoration: InputDecoration(labelText: 'Name'),
-                  ),
-
-                  ...List.generate(ingredients.length, (index) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              labelText: "Zutat",
+              title: Text('Rezept hinzufügen'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      onChanged: (value) => name = value,
+                      decoration: InputDecoration(labelText: 'Name'),
+                    ),
+                    
+                    ...List.generate(ingredients.length, (index) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                labelText: "Zutat",
+                              ),
+                              onChanged: (value) {
+                                ingredients[index].name = value;
+                              },
                             ),
-                            onChanged: (value) {
-                              ingredients[index].name = value;
+                          ),
+                
+                          Expanded(//ü
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                labelText: "Menge",
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                ingredients[index].amount = value;
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
+                
+                    Row(
+                      children: [
+                        Flexible(
+                          child: TextButton(
+                            onPressed: () {
+                              if (ingredients.length < 7) {
+                                updateDialogState(() {
+                                  ingredients.add(IngredientInput());
+                                });
+                              }
                             },
+                            child: Text('Zutat hinzufügen'),
                           ),
                         ),
-
-                        Expanded(//ü
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              labelText: "Menge",
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              ingredients[index].amount = value;
+                        Flexible(
+                          child: TextButton(
+                            onPressed: () {
+                              if (ingredients.isNotEmpty &&
+                                  ingredients.length > 1) {
+                                updateDialogState(() {
+                                  ingredients.removeLast();
+                                });
+                              }
                             },
+                            child: Text('Zutat entfernen'),
                           ),
                         ),
                       ],
-                    );
-                  }),
-
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          if (ingredients.length < 9) {
-                            updateDialogState(() {
-                              ingredients.add(IngredientInput());
-                            });
-                          }
-                        },
-                        child: Text('Zutat hinzufügen'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          if (ingredients.isNotEmpty &&
-                              ingredients.length > 1) {
-                            updateDialogState(() {
-                              ingredients.removeLast();
-                            });
-                          }
-                        },
-                        child: Text('Zutat entfernen'),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -245,6 +252,8 @@ class _FoodDatabaseState extends State<FoodDatabase>
               toolbarHeight: 0,
               //title: const Text("TabBar Beispiel"),
               bottom: TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
                 controller: _tabController,
                 labelPadding: EdgeInsets.symmetric(horizontal: 12.0),
                 tabs: [
@@ -263,13 +272,13 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     if (snapshot.hasError) {
                       return Text('Fehler');
                     }
-
+    
                     if (!snapshot.hasData) {
                       return CircularProgressIndicator();
                     }
-
+    
                     final docs = snapshot.data!.docs;
-
+    
                     return ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
@@ -290,20 +299,20 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     );
                   },
                 ),
-
+    
                 StreamBuilder(
                   stream: DatabaseService().getAllRecipeItems(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Text('Fehler');
                     }
-
+    
                     if (!snapshot.hasData) {
                       return CircularProgressIndicator();
                     }
-
+    
                     final docs = snapshot.data!.docs;
-
+    
                     return ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
@@ -330,13 +339,13 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     if (snapshot.hasError) {
                       return Text('Fehler');
                     }
-
+    
                     if (!snapshot.hasData) {
                       return CircularProgressIndicator();
                     }
-
+    
                     final docs = snapshot.data!.docs;
-
+    
                     return ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
@@ -369,7 +378,7 @@ class _FoodDatabaseState extends State<FoodDatabase>
             child: FloatingActionButton(
               onPressed: () {
                 final index = _tabController.index;
-
+    
                 switch (index) {
                   case 0:
                     _showAddFoodDialog();

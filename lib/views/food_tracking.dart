@@ -18,7 +18,7 @@ class _FoodTrackingState extends State<FoodTracking> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Neues Essen hinzufügen'),
+          title: Text('Essen hinzufügen'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -27,7 +27,7 @@ class _FoodTrackingState extends State<FoodTracking> {
                 decoration: InputDecoration(labelText: 'Name'),
               ),
               TextField(
-                onChanged: (value) => amount = double.parse(value),
+                onChanged: (value) => amount = double.parse(value.replaceAll(',', '.')),
                 decoration: InputDecoration(labelText: 'Menge'),
                 keyboardType: TextInputType.number,
               ),
@@ -118,32 +118,38 @@ class _FoodTrackingState extends State<FoodTracking> {
               return Column(
                 children: [
                   Expanded(
-                    child: DataTable(
-                      showBottomBorder: true,
-                      horizontalMargin: 5,
-                      columnSpacing: 20,
-                      columns: const [
-                        DataColumn(label: Text('Protein')),
-                        DataColumn(label: Text('Kalorien')),
-                        DataColumn(label: Text('Essen')),
-                        DataColumn(label: Text('Menge')),
-                      ],
-                      rows: List.generate(currentTrack.length, (index) {
-                        return DataRow(
-                          cells: [
-                            DataCell(
-                              Text(currentTrack[index]['protein'].toString()),
-                            ),
-                            DataCell(
-                              Text(currentTrack[index]['calories'].toString()),
-                            ),
-                            DataCell(Text(currentTrack[index]['name'])),
-                            DataCell(
-                              Text(currentTrack[index]['amount'].toString()),
-                            ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: DataTable(
+                          showBottomBorder: true,
+                          horizontalMargin: 10,
+                          columnSpacing: 10,
+                          columns: const [
+                            DataColumn(label: Text('Protein')),
+                            DataColumn(label: Text('Kalorien')),
+                            DataColumn(label: Text('Essen')),
+                            DataColumn(label: Text('Menge')),
                           ],
-                        );
-                      }),
+                          rows: List.generate(currentTrack.length, (index) {
+                            return DataRow(
+                              cells: [
+                                DataCell(
+                                  Text(currentTrack[index]['protein'].toString()),
+                                ),
+                                DataCell(
+                                  Text(currentTrack[index]['calories'].toString()),
+                                ),
+                                DataCell(Text(currentTrack[index]['name'])),
+                                DataCell(
+                                  Text(currentTrack[index]['amount'].toString()),
+                                ),
+                              ],
+                            );
+                          }),
+                        ),
+                      ),
                     ),
                   ),
                   Align(
