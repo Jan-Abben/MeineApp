@@ -83,7 +83,7 @@ class _FoodTrackingState extends State<FoodTracking> {
         '${DateTime.now().month.toString().padLeft(2, '0')}-'
         '${DateTime.now().day.toString().padLeft(2, '0')}';
 
-    datum = '2026-08-23'; // For testing purposes, set a fixed date
+    //datum = '2026-08-23'; // For testing purposes, set a fixed date
 
     DatabaseService().createTrackingToday(datum);
     //currentTrackFuture = DatabaseService().getTrackedValues(datum);
