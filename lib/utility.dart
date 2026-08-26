@@ -155,7 +155,7 @@ class DatabaseService {
   }
 
   Stream<TrackingItem> getTrackingItemStream(String name) {
-    return FirebaseFirestore.instance
+    final result = FirebaseFirestore.instance
         .collection('Lebensmittelverfolgung')
         .doc(name)
         .snapshots()
@@ -163,19 +163,23 @@ class DatabaseService {
           final data = snapshot.data()!;
 
           return TrackingItem(
-            name: data['name'],
+            name: name,
             food: (data['food'] as Map<String, dynamic>),
             calories: data['calories'],
             protein: data['protein'],
           );
         });
+    return result;
   }
 
-  Future<TrackingItem> addEntryToTrackingItem(
-    TrackingItem trackingItem,
+  Future<void> updateTrackingItem(
+    String date,
     String name,
     double amount,
   ) async {
+
+    TrackingItem trackingItem = await DatabaseService().getTrackingItem(date);
+                  
     // Update the food map
     Map<String, dynamic> food = {...trackingItem.food, name: amount};
     int calories = trackingItem.calories;
@@ -192,7 +196,7 @@ class DatabaseService {
         calories += (recipeItem.calories * amount / 10).round() * 10;
         protein += (recipeItem.protein * amount).round();
       } catch (e) {
-        print("Food or Recipe item not found");
+        //print("Food or Recipe item not found");
       }
     }
     TrackingItem updatedTrackingItem = TrackingItem(
@@ -202,7 +206,7 @@ class DatabaseService {
       protein: protein,
     );
 
-    return updatedTrackingItem;
+    DatabaseService().addTrackingItem(updatedTrackingItem);
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllTrackingItems() {
@@ -241,7 +245,7 @@ class DatabaseService {
             'amount': amount,
           });
         } catch (e) {
-          print("Recipe item not found");
+          //print("Recipe item not found");
         }
       }
     }
@@ -249,8 +253,9 @@ class DatabaseService {
   }
 
   Stream<List<Map<String, dynamic>>> getTrackedValuesStream(String name) {
-    return getTrackingItemStream(name).asyncMap((item) async {
+    final result = getTrackingItemStream(name).asyncMap((item) async {
       return await getTrackedValues(item);
     });
+    return result;
   }
 }

@@ -41,15 +41,14 @@ class _FoodTrackingState extends State<FoodTracking> {
             ElevatedButton(
               onPressed: () async {
                 if (name.isNotEmpty && amount > 0) {
-                  TrackingItem currentTrackingItem = await DatabaseService()
-                      .getTrackingItem(datum);
-                  TrackingItem updatedTrackingItem = await DatabaseService()
-                      .addEntryToTrackingItem(
-                        currentTrackingItem,
+                  await DatabaseService()
+                      .updateTrackingItem(
+                        datum,
                         name,
                         amount,
                       );
-                  DatabaseService().addTrackingItem(updatedTrackingItem);
+                      
+                  if (!context.mounted) return;
                   Navigator.pop(context);
                 } else {
                   // Show an error message or handle the case where the name or ingredients are empty
@@ -84,6 +83,8 @@ class _FoodTrackingState extends State<FoodTracking> {
         '${DateTime.now().month.toString().padLeft(2, '0')}-'
         '${DateTime.now().day.toString().padLeft(2, '0')}';
 
+    datum = '2026-08-23'; // For testing purposes, set a fixed date
+
     DatabaseService().createTrackingToday(datum);
     //currentTrackFuture = DatabaseService().getTrackedValues(datum);
   }
@@ -93,13 +94,13 @@ class _FoodTrackingState extends State<FoodTracking> {
     return Column(
       children: [
         Expanded(
-          child: StreamBuilder(
+          child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: DatabaseService().getTrackedValuesStream(datum),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
               }
-          
+              
               if (!snapshot.hasData) {
                 return const Text('Keine Daten gefunden');
               }

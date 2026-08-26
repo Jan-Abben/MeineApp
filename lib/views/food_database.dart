@@ -78,9 +78,6 @@ class _FoodDatabaseState extends State<FoodDatabase>
     String name = '';
     List<IngredientInput> ingredients = [IngredientInput(), IngredientInput()];
 
-    String calories = '';
-    String protein = '';
-
     showDialog(
       context: context,
       builder: (context) {
@@ -163,7 +160,6 @@ class _FoodDatabaseState extends State<FoodDatabase>
                         (ingredients.every(
                           (obj) => obj.name.isNotEmpty && obj.amount.isNotEmpty,
                         ))) {
-                      print(ingredients);
 
                       double caloriesSum = 0;
                       double proteinSum = 0;
@@ -180,6 +176,8 @@ class _FoodDatabaseState extends State<FoodDatabase>
                               double.parse(obj.amount.replaceAll(',', '.'));
                         } catch (e) {
                           // Handle the case where the food item is not found
+                          
+                          if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -200,6 +198,8 @@ class _FoodDatabaseState extends State<FoodDatabase>
                         protein: (proteinSum).round(),
                       );
                       DatabaseService().addRecipeItem(recipeItem);
+
+                      if (!context.mounted) return;
                       Navigator.pop(context);
                     } else {
                       // Show an error message or handle the case where the name or ingredients are empty
@@ -380,7 +380,7 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     // Aktion für Tab 2
                     break;
                   case 2:
-                    print("Add Tracking");
+                    //print("Add Tracking");
                     // Aktion für Tab 3
                     break;
                 }
