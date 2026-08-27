@@ -11,10 +11,14 @@ class FoodDatabase extends StatefulWidget {
 
 class _FoodDatabaseState extends State<FoodDatabase>
     with SingleTickerProviderStateMixin {
-  void _showAddFoodDialog() {
-    String name = '';
-    String calories = '';
-    String protein = '';
+  void _showAddFoodDialog({
+    String name = '',
+    String calories = '',
+    String protein = '',
+  }) {
+    final nameController = TextEditingController(text: name);
+    final caloriesController = TextEditingController(text: calories);
+    final proteinController = TextEditingController(text: protein);
 
     showDialog(
       context: context,
@@ -25,15 +29,18 @@ class _FoodDatabaseState extends State<FoodDatabase>
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
+                controller: nameController,
                 onChanged: (value) => name = value,
                 decoration: InputDecoration(labelText: 'Name'),
               ),
               TextField(
+                controller: caloriesController,
                 onChanged: (value) => calories = value,
                 decoration: InputDecoration(labelText: 'Kalorien'),
                 keyboardType: TextInputType.number,
               ),
               TextField(
+                controller: proteinController,
                 onChanged: (value) => protein = value,
                 decoration: InputDecoration(labelText: 'Protein'),
                 keyboardType: TextInputType.number,
@@ -53,7 +60,7 @@ class _FoodDatabaseState extends State<FoodDatabase>
                   final foodItem = FoodItem(
                     name: name,
                     calories: int.parse(calories),
-                    protein: int.parse(protein),
+                    protein: double.parse(protein.replaceAll(',', '.')),
                   );
                   DatabaseService().addFoodItem(foodItem);
                   Navigator.pop(context);
@@ -74,9 +81,26 @@ class _FoodDatabaseState extends State<FoodDatabase>
     );
   }
 
-  void _showAddRecipeDialog() {
-    String name = '';
-    List<IngredientInput> ingredients = [IngredientInput(), IngredientInput()];
+  void _showAddRecipeDialog({
+    String name = '',
+    List<IngredientInput>? ingredientsInput,
+  }) {
+    TextEditingController nameController = TextEditingController(text: name);
+
+    List<IngredientInput>? ingredients =
+        ingredientsInput ?? [IngredientInput(), IngredientInput()];
+
+    List<TextEditingController> ingredientNameControllers = ingredients.map((
+      ingredient,
+    ) {
+      return TextEditingController(text: ingredient.name);
+    }).toList();
+
+    List<TextEditingController> ingredientAmountControllers = ingredients.map((
+      ingredient,
+    ) {
+      return TextEditingController(text: ingredient.amount);
+    }).toList();
 
     showDialog(
       useSafeArea: false,
@@ -91,15 +115,17 @@ class _FoodDatabaseState extends State<FoodDatabase>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextField(
+                      controller: nameController,
                       onChanged: (value) => name = value,
                       decoration: InputDecoration(labelText: 'Name'),
                     ),
-                    
+
                     ...List.generate(ingredients.length, (index) {
                       return Row(
                         children: [
                           Expanded(
                             child: TextField(
+                              controller: ingredientNameControllers[index],
                               decoration: const InputDecoration(
                                 labelText: "Zutat",
                               ),
@@ -108,9 +134,10 @@ class _FoodDatabaseState extends State<FoodDatabase>
                               },
                             ),
                           ),
-                
-                          Expanded(//ü
+
+                          Expanded(
                             child: TextField(
+                              controller: ingredientAmountControllers[index],
                               decoration: const InputDecoration(
                                 labelText: "Menge",
                               ),
@@ -123,7 +150,7 @@ class _FoodDatabaseState extends State<FoodDatabase>
                         ],
                       );
                     }),
-                
+
                     Row(
                       children: [
                         Flexible(
@@ -132,6 +159,12 @@ class _FoodDatabaseState extends State<FoodDatabase>
                               if (ingredients.length < 7) {
                                 updateDialogState(() {
                                   ingredients.add(IngredientInput());
+                                  ingredientNameControllers.add(
+                                    TextEditingController(),
+                                  );
+                                  ingredientAmountControllers.add(
+                                    TextEditingController(),
+                                  );
                                 });
                               }
                             },
@@ -145,6 +178,8 @@ class _FoodDatabaseState extends State<FoodDatabase>
                                   ingredients.length > 1) {
                                 updateDialogState(() {
                                   ingredients.removeLast();
+                                  ingredientNameControllers.removeLast();
+                                  ingredientAmountControllers.removeLast();
                                 });
                               }
                             },
@@ -167,7 +202,6 @@ class _FoodDatabaseState extends State<FoodDatabase>
                         (ingredients.every(
                           (obj) => obj.name.isNotEmpty && obj.amount.isNotEmpty,
                         ))) {
-
                       double caloriesSum = 0;
                       double proteinSum = 0;
 
@@ -177,18 +211,21 @@ class _FoodDatabaseState extends State<FoodDatabase>
                             obj.name,
                           );
 
-                          caloriesSum += foodItem.calories *
+                          caloriesSum +=
+                              foodItem.calories *
                               double.parse(obj.amount.replaceAll(',', '.'));
-                          proteinSum += foodItem.protein *
+                          proteinSum +=
+                              foodItem.protein *
                               double.parse(obj.amount.replaceAll(',', '.'));
                         } catch (e) {
                           // Handle the case where the food item is not found
-                          
+
                           if (!context.mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                  'Lebensmittel "${obj.name}" nicht gefunden.'),
+                                'Lebensmittel "${obj.name}" nicht gefunden.',
+                              ),
                             ),
                           );
                           return; // Exit the function if a food item is not found
@@ -199,9 +236,11 @@ class _FoodDatabaseState extends State<FoodDatabase>
                         name: name,
                         ingredients: {
                           for (var obj in ingredients)
-                            obj.name: double.parse(obj.amount.replaceAll(',', '.')),
+                            obj.name: double.parse(
+                              obj.amount.replaceAll(',', '.'),
+                            ),
                         },
-                        calories: (caloriesSum/10).round()*10,
+                        calories: (caloriesSum / 10).round() * 10,
                         protein: (proteinSum).round(),
                       );
                       DatabaseService().addRecipeItem(recipeItem);
@@ -272,17 +311,53 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     if (snapshot.hasError) {
                       return Text('Fehler');
                     }
-    
+
                     if (!snapshot.hasData) {
                       return CircularProgressIndicator();
                     }
-    
+
                     final docs = snapshot.data!.docs;
-    
+
                     return ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
                         return ListTile(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(docs[index].id),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        DatabaseService().deleteFoodItem(
+                                          docs[index].id,
+                                        );
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Löschen'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        _showAddFoodDialog(
+                                          name: docs[index].id,
+                                          calories: docs[index]
+                                              .data()['calories']
+                                              .toString(),
+                                          protein: docs[index]
+                                              .data()['protein']
+                                              .toString(),
+                                        );
+                                      },
+                                      child: Text('Bearbeiten'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           title: Text(docs[index].id),
                           subtitle: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -299,24 +374,106 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     );
                   },
                 ),
-    
+
                 StreamBuilder(
                   stream: DatabaseService().getAllRecipeItems(),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       return Text('Fehler');
                     }
-    
+
                     if (!snapshot.hasData) {
                       return CircularProgressIndicator();
                     }
-    
+
                     final docs = snapshot.data!.docs;
-    
+
                     return ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
                         return ListTile(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(docs[index].id),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Zutaten:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Mengen:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                      ...(docs[index].data()['ingredients']
+                                              as Map<String, dynamic>)
+                                          .entries
+                                          .map((entry) {
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(entry.key),
+                                                Text(entry.value.toString()),
+                                              ],
+                                            );
+                                          }),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        DatabaseService().deleteRecipeItem(
+                                          docs[index].id,
+                                        );
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Löschen'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        _showAddRecipeDialog(
+                                          name: docs[index].id,
+                                          ingredientsInput:
+                                              (docs[index].data()['ingredients']
+                                                      as Map<String, dynamic>)
+                                                  .entries
+                                                  .map((entry) {
+                                                    final ingredient =
+                                                        IngredientInput();
+                                                    ingredient.name = entry.key;
+                                                    ingredient.amount = entry
+                                                        .value
+                                                        .toString();
+                                                    return ingredient;
+                                                  })
+                                                  .toList(),
+                                        );
+                                      },
+                                      child: Text('Bearbeiten'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           title: Text(docs[index].id),
                           subtitle: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -339,13 +496,13 @@ class _FoodDatabaseState extends State<FoodDatabase>
                     if (snapshot.hasError) {
                       return Text('Fehler');
                     }
-    
+
                     if (!snapshot.hasData) {
                       return CircularProgressIndicator();
                     }
-    
+
                     final docs = snapshot.data!.docs;
-    
+
                     return ListView.builder(
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
@@ -378,7 +535,7 @@ class _FoodDatabaseState extends State<FoodDatabase>
             child: FloatingActionButton(
               onPressed: () {
                 final index = _tabController.index;
-    
+
                 switch (index) {
                   case 0:
                     _showAddFoodDialog();

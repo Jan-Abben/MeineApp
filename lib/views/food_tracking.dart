@@ -12,7 +12,7 @@ class FoodTracking extends StatefulWidget {
 class _FoodTrackingState extends State<FoodTracking> {
   void _showAddTrackingDialog() {
     String name = '';
-    double amount = 0;
+    String amount = '';
 
     showDialog(
       context: context,
@@ -27,7 +27,7 @@ class _FoodTrackingState extends State<FoodTracking> {
                 decoration: InputDecoration(labelText: 'Name'),
               ),
               TextField(
-                onChanged: (value) => amount = double.parse(value.replaceAll(',', '.')),
+                onChanged: (value) => amount = value,
                 decoration: InputDecoration(labelText: 'Menge'),
                 keyboardType: TextInputType.number,
               ),
@@ -40,14 +40,15 @@ class _FoodTrackingState extends State<FoodTracking> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (name.isNotEmpty && amount > 0) {
-                  await DatabaseService()
-                      .updateTrackingItem(
-                        datum,
-                        name,
-                        amount,
-                      );
-                      
+                if (name.isNotEmpty &&
+                    amount.isNotEmpty &&
+                    double.parse(amount.replaceAll(',', '.')) > 0) {
+                  await DatabaseService().updateTrackingItem(
+                    datum,
+                    name,
+                    double.parse(amount.replaceAll(',', '.')),
+                  );
+
                   if (!context.mounted) return;
                   Navigator.pop(context);
                 } else {
@@ -72,8 +73,6 @@ class _FoodTrackingState extends State<FoodTracking> {
 
   String datum = '';
 
-  //late Future<List<Map<String, dynamic>>> currentTrackFuture;
-
   @override
   void initState() {
     super.initState();
@@ -83,10 +82,7 @@ class _FoodTrackingState extends State<FoodTracking> {
         '${DateTime.now().month.toString().padLeft(2, '0')}-'
         '${DateTime.now().day.toString().padLeft(2, '0')}';
 
-    //datum = '2026-08-23'; // For testing purposes, set a fixed date
-
     DatabaseService().createTrackingToday(datum);
-    //currentTrackFuture = DatabaseService().getTrackedValues(datum);
   }
 
   @override
@@ -100,21 +96,21 @@ class _FoodTrackingState extends State<FoodTracking> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
               }
-              
+
               if (!snapshot.hasData) {
                 return const Text('Keine Daten gefunden');
               }
-          
+
               final currentTrack = snapshot.data!;
-          
+
               totalCalories = 0;
               totalProtein = 0;
-          
+
               for (var obj in currentTrack) {
                 totalCalories += obj['calories'] as int;
                 totalProtein += obj['protein'] as int;
               }
-          
+
               return Column(
                 children: [
                   Expanded(
@@ -123,6 +119,7 @@ class _FoodTrackingState extends State<FoodTracking> {
                       child: SingleChildScrollView(
                         scrollDirection: Axis.vertical,
                         child: DataTable(
+                          showCheckboxColumn: false,
                           showBottomBorder: true,
                           horizontalMargin: 10,
                           columnSpacing: 10,
@@ -134,16 +131,43 @@ class _FoodTrackingState extends State<FoodTracking> {
                           ],
                           rows: List.generate(currentTrack.length, (index) {
                             return DataRow(
+                              onSelectChanged: (selected) {
+                                if (selected == true) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text(currentTrack[index]['name']),
+                                      content: FloatingActionButton(
+                                        onPressed: () {
+                                          DatabaseService().removeTrackingItemEntry(
+                                            datum,
+                                            currentTrack[index]['name'],
+                                          );
+                                          Navigator.pop(context);
+                                        },
+                                        tooltip: 'Löschen',
+                                        child: const Icon(Icons.delete, size: 40),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
                               cells: [
                                 DataCell(
-                                  Text(currentTrack[index]['protein'].toString()),
+                                  Text(
+                                    currentTrack[index]['protein'].toString(),
+                                  ),
                                 ),
                                 DataCell(
-                                  Text(currentTrack[index]['calories'].toString()),
+                                  Text(
+                                    currentTrack[index]['calories'].toString(),
+                                  ),
                                 ),
                                 DataCell(Text(currentTrack[index]['name'])),
                                 DataCell(
-                                  Text(currentTrack[index]['amount'].toString()),
+                                  Text(
+                                    currentTrack[index]['amount'].toString(),
+                                  ),
                                 ),
                               ],
                             );

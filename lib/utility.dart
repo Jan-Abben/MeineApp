@@ -17,7 +17,7 @@ class PageItem {
 class FoodItem {
   final String name;
   final int calories;
-  final int protein;
+  final double protein;
 
   FoodItem({required this.name, required this.calories, required this.protein});
 }
@@ -53,7 +53,6 @@ class TrackingItem {
 class IngredientInput {
   String name = "";
   String amount = "";
-  //String unit = "";
 }
 
 class DatabaseService {
@@ -83,6 +82,10 @@ class DatabaseService {
     });
   }
 
+  Future<void> deleteFoodItem(String name) async {
+    await _db.collection('Lebensmittel').doc(name).delete();
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllFoodItems() {
     return FirebaseFirestore.instance.collection('Lebensmittel').snapshots();
   }
@@ -108,6 +111,10 @@ class DatabaseService {
       'calories': recipeItem.calories,
       'protein': recipeItem.protein,
     });
+  }
+
+  Future<void> deleteRecipeItem(String name) async {
+    await _db.collection('Rezepte').doc(name).delete();
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllRecipeItems() {
@@ -177,11 +184,20 @@ class DatabaseService {
     String name,
     double amount,
   ) async {
-
     TrackingItem trackingItem = await DatabaseService().getTrackingItem(date);
-                  
+
     // Update the food map
-    Map<String, dynamic> food = {...trackingItem.food, name: amount};
+
+    Map<String, dynamic> food = {
+      ...trackingItem.food,
+    }; // Create a copy of the food map
+
+    if (food.containsKey(name)) {
+      food[name] = food[name]! + amount;
+    } else {
+      food[name] = amount;
+    }
+
     int calories = trackingItem.calories;
     int protein = trackingItem.protein;
 
@@ -207,6 +223,46 @@ class DatabaseService {
     );
 
     DatabaseService().addTrackingItem(updatedTrackingItem);
+  }
+
+  Future<void> removeTrackingItemEntry(String date, String name) async {
+    TrackingItem trackingItem = await DatabaseService().getTrackingItem(date);
+
+    Map<String, dynamic> food = {
+      ...trackingItem.food,
+    }; // Create a copy of the food map
+
+    if (food.containsKey(name)) {
+      double amount = food[name];
+      food.remove(name);
+
+      int calories = trackingItem.calories;
+      int protein = trackingItem.protein;
+
+      // Get the food item to calculate calories and protein
+      try {
+        FoodItem foodItem = await getFoodItem(name);
+        calories -= (foodItem.calories * amount / 10).round() * 10;
+        protein -= (foodItem.protein * amount).round();
+      } catch (e) {
+        try {
+          RecipeItem recipeItem = await getRecipeItem(name);
+          calories -= (recipeItem.calories * amount / 10).round() * 10;
+          protein -= (recipeItem.protein * amount).round();
+        } catch (e) {
+          //print("Food or Recipe item not found");
+        }
+      }
+
+      TrackingItem updatedTrackingItem = TrackingItem(
+        name: trackingItem.name,
+        food: food,
+        calories: calories,
+        protein: protein,
+      );
+
+      DatabaseService().addTrackingItem(updatedTrackingItem);
+    }
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getAllTrackingItems() {

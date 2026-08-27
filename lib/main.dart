@@ -22,8 +22,7 @@ class PageItem {
 /* Roadmap:
 
 Food Tracking:
--Bug fixen damit die Sachen richtige angezeigt werden
-- Lebensmittel/Gericht bei einem Tag hinzufügen
+- Einträge in der App löschen/updaten
 - vergleich mit Zielvorgaben
 - Alles langfristig speichern (Verlauf anzeigen)
 
