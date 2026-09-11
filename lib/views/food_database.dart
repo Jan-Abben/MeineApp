@@ -507,6 +507,57 @@ class _FoodDatabaseState extends State<FoodDatabase>
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
                         return ListTile(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: Text(docs[index].id),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            'Essen:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            'Mengen:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                      ...(docs[index].data()['food']
+                                              as Map<String, dynamic>)
+                                          .entries
+                                          .map((entry) {
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(entry.key),
+                                                Text(entry.value.toString()),
+                                              ],
+                                            );
+                                          }),
+                                    ],
+                                  ),
+                                  actions: [
+                                    
+                                  ],
+                                );
+                              },
+                            );
+                          },
                           title: Text(docs[index].id),
                           subtitle: Column(
                             mainAxisAlignment: MainAxisAlignment.start,

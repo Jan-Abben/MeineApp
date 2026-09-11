@@ -22,7 +22,6 @@ class PageItem {
 /* Roadmap:
 
 Food Tracking:
-- Einträge in der App löschen/updaten
 - vergleich mit Zielvorgaben
 - Alles langfristig speichern (Verlauf anzeigen)
 
@@ -96,7 +95,8 @@ class _CurrentPageState extends State<CurrentPage> {
       page: const HomePage()
       ),
     PageItem(
-      title: 'Lebensmittelverfolgung ${DateTime.now().day.toString()}.${DateTime.now().month.toString()}.${DateTime.now().year.toString()}',
+      title: 'Lebensmittelverfolgung',
+      //${DateTime.now().day.toString()}.${DateTime.now().month.toString()}.${DateTime.now().year.toString()}
       icon: Icons.local_dining,
       page: const FoodTracking(),
     ),

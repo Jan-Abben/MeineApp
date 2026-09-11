@@ -68,6 +68,25 @@ class _FoodTrackingState extends State<FoodTracking> {
     );
   }
 
+  void _showDatePickerDialog() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    ).then((selectedDate) {
+      if (selectedDate != null) {
+        setState(() {
+          datum =
+              '${selectedDate.year.toString().padLeft(4, '0')}-'
+              '${selectedDate.month.toString().padLeft(2, '0')}-'
+              '${selectedDate.day.toString().padLeft(2, '0')}';
+        });
+        DatabaseService().createTrackingToday(datum);
+      }
+    });
+  }
+
   int totalCalories = 0;
   int totalProtein = 0;
 
@@ -89,6 +108,10 @@ class _FoodTrackingState extends State<FoodTracking> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Text(
+          '$datum',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         Expanded(
           child: StreamBuilder<List<Map<String, dynamic>>>(
             stream: DatabaseService().getTrackedValuesStream(datum),
@@ -191,20 +214,34 @@ class _FoodTrackingState extends State<FoodTracking> {
             },
           ),
         ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: SizedBox(
-            width: 75,
-            height: 75,
-            child: FloatingActionButton(
-              onPressed: () {
-                _showAddTrackingDialog();
-              },
-              tooltip: 'Neu hinzufügen',
-              child: const Icon(Icons.add, size: 40),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: 75,
+              height: 75,
+              child: FloatingActionButton(
+                onPressed: () {
+                  _showDatePickerDialog();
+                },
+                tooltip: 'Datum ändern',
+                child: const Icon(Icons.calendar_month, size: 40),
+              ),
             ),
-          ),
+            SizedBox(
+              width: 75,
+              height: 75,
+              child: FloatingActionButton(
+                onPressed: () {
+                  _showAddTrackingDialog();
+                },
+                tooltip: 'Neu hinzufügen',
+                child: const Icon(Icons.add, size: 40),
+              ),
+            ),
+          ],
         ),
+        
       ],
     );
   }
