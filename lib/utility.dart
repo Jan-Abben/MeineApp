@@ -314,4 +314,17 @@ class DatabaseService {
     });
     return result;
   }
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>> getAllShoppingItems() {
+    return FirebaseFirestore.instance.collection('Einkaufen').doc('Einkaufsliste').snapshots();
+  }
+
+  Future<void> updateShoppingItem(String name, bool abgehakt) async {
+    await FirebaseFirestore.instance.collection('Einkaufen').doc('Einkaufsliste').update({
+      '$name.abgehakt': abgehakt,
+    });
+  }
+
+
+
 }

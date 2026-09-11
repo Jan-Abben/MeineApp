@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../utility.dart';
 
 class FoodTracking extends StatefulWidget {
