@@ -58,6 +58,7 @@ class IngredientInput {
 class DatabaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+//FoodItem
   Future<FoodItem> getFoodItem(String name) async {
     final documentSnapshot = await _db
         .collection('Lebensmittel')
@@ -90,6 +91,7 @@ class DatabaseService {
     return FirebaseFirestore.instance.collection('Lebensmittel').snapshots();
   }
 
+//RecipeItem
   Future<RecipeItem> getRecipeItem(String name) async {
     final documentSnapshot = await _db.collection('Rezepte').doc(name).get();
     if (documentSnapshot.exists) {
@@ -121,6 +123,7 @@ class DatabaseService {
     return FirebaseFirestore.instance.collection('Rezepte').snapshots();
   }
 
+//TrackingItem
   Future<TrackingItem> getTrackingItem(String name) async {
     final documentSnapshot = await _db
         .collection('Lebensmittelverfolgung')
@@ -315,16 +318,44 @@ class DatabaseService {
     return result;
   }
 
+//Shopping
+//ShoppingItem
   Stream<DocumentSnapshot<Map<String, dynamic>>> getAllShoppingItems() {
     return FirebaseFirestore.instance.collection('Einkaufen').doc('Einkaufsliste').snapshots();
   }
 
-  Future<void> updateShoppingItem(String name, bool abgehakt) async {
+  Future<void> updateShoppingItem(String name, bool checked, int amount) async {
     await FirebaseFirestore.instance.collection('Einkaufen').doc('Einkaufsliste').update({
-      '$name.abgehakt': abgehakt,
+      '$name.checked': checked,
+      '$name.amount': amount,
     });
   }
 
+  Future<void> deleteShoppingItem(String name) async {
+    await FirebaseFirestore.instance.collection('Einkaufen').doc('Einkaufsliste').update({
+      '$name': FieldValue.delete(),
+    });
+  }
+
+
+//Standarddinge
+  Future<Map<String, dynamic>> getAllStandarddinge() async {
+    final documentSnapshot = await FirebaseFirestore.instance.collection('Einkaufen').doc('Daten').get();
+    
+    if (documentSnapshot.exists) {
+      final data = documentSnapshot.data()!;
+      print("Standarddinge data: $data");
+      return data['Standarddinge'] as Map<String, dynamic>;
+    } else {
+      throw Exception('Tracking item not found');
+    }
+  }
+
+  Future<void> updateStandarddinge(String name, bool checked) async {
+    await FirebaseFirestore.instance.collection('Einkaufen').doc('Daten').update({
+      'Standarddinge.$name': checked,
+    });
+  }
 
 
 }
